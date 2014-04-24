@@ -31,6 +31,7 @@ static int curl_pool_count = 0;
 static int debug = 0;
 static int verify_ssl = 1;
 static int rhel5_mode = 0;
+char *def_storage_url = 0;
 
 #ifdef HAVE_OPENSSL
 #include <openssl/crypto.h>
@@ -477,7 +478,7 @@ static struct {
 } reconnect_args;
 
 void cloudfs_set_credentials(char *username, char *tenant, char *password,
-                             char *authurl, char *region, int use_snet)
+                             char *authurl, char *region, int use_snet, char *storage_url)
 {
   strncpy(reconnect_args.username, username, sizeof(reconnect_args.username));
   strncpy(reconnect_args.tenant, tenant, sizeof(reconnect_args.tenant));
@@ -495,6 +496,7 @@ void cloudfs_set_credentials(char *username, char *tenant, char *password,
   else
     reconnect_args.auth_version = 1;
   reconnect_args.use_snet = use_snet;
+  if (storage_url && strlen(storage_url)) def_storage_url = strdup(storage_url);
 }
 
 int cloudfs_connect()
@@ -568,6 +570,8 @@ int cloudfs_connect()
   curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response);
   curl_slist_free_all(headers);
   curl_easy_cleanup(curl);
+
+  if (!strlen(storage_url)) strcpy(storage_url, def_storage_url);
 
   if (reconnect_args.auth_version == 2)
   {

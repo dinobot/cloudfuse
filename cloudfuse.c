@@ -433,6 +433,7 @@ static struct options {
     char region[OPTION_SIZE];
     char use_snet[OPTION_SIZE];
     char verify_ssl[OPTION_SIZE];
+    char storage_url[OPTION_SIZE];
 } options = {
     .username = "",
     .password = "",
@@ -442,6 +443,7 @@ static struct options {
     .region = "",
     .use_snet = "false",
     .verify_ssl = "true",
+    .storage_url = "",
 };
 
 int parse_option(void *data, const char *arg, int key, struct fuse_args *outargs)
@@ -453,6 +455,7 @@ int parse_option(void *data, const char *arg, int key, struct fuse_args *outargs
       sscanf(arg, " cache_timeout = %[^\r\n ]", options.cache_timeout) ||
       sscanf(arg, " authurl = %[^\r\n ]", options.authurl) ||
       sscanf(arg, " region = %[^\r\n ]", options.region) ||
+      sscanf(arg, " storage_url = %[^\r\n ]", options.storage_url) ||
       sscanf(arg, " use_snet = %[^\r\n ]", options.use_snet) ||
       sscanf(arg, " verify_ssl = %[^\r\n ]", options.verify_ssl))
     return 0;
@@ -504,7 +507,7 @@ int main(int argc, char **argv)
 
   cloudfs_set_credentials(options.username, options.tenant, options.password,
                           options.authurl, options.region,
-                          !strcasecmp(options.use_snet, "true"));
+                          !strcasecmp(options.use_snet, "true"), options.storage_url);
   if (!cloudfs_connect())
   {
     fprintf(stderr, "Failed to authenticate.\n");
